@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { initials } from "@/lib/profile-store";
+import { usePrayerBadge } from "@/lib/prayers-store";
 import { toast } from "sonner";
 
 const NAV = [
