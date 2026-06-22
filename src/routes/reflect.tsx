@@ -4,9 +4,9 @@ import { Bookmark, BookOpen, ChevronDown, ChevronUp, Volume2, VolumeX, Check } f
 import { toast } from "sonner";
 
 import { VERSES, randomVerse, getVerseById, type Verse } from "@/data/verses";
-import { randomBackground } from "@/data/backgrounds";
 import { downloadWallpaper } from "@/lib/wallpaper";
 import { useSavedWallpapers } from "@/lib/saved-store";
+import { useBackgroundPool } from "@/hooks/use-background-pool";
 import { cn } from "@/lib/utils";
 
 type Search = {
@@ -68,20 +68,23 @@ function ReflectPage() {
   // SSR or it causes a hydration mismatch.
   const [items, setItems] = useState<FeedItem[]>([]);
 
+  const { take, resetCount } = useBackgroundPool();
+
   useEffect(() => {
+    resetCount();
     const seed = buildVerseFromSearch(search);
     const list: FeedItem[] = [];
     let lastV = "";
     let lastB = "";
     if (seed) {
-      const bg = search.bg ?? randomBackground();
+      const bg = search.bg ?? take();
       list.push({ key: `seed-${seed.id}-${Date.now()}`, verse: seed, bg });
       lastV = seed.id;
       lastB = bg;
     }
     for (let i = 0; i < 8; i++) {
       const v = randomVerse(lastV);
-      const bg = randomBackground(lastB);
+      const bg = take(lastB);
       list.push({ key: `init-${i}-${v.id}`, verse: v, bg });
       lastV = v.id;
       lastB = bg;
@@ -101,20 +104,39 @@ function ReflectPage() {
       let lb = lastB ?? "";
       for (let i = 0; i < 5; i++) {
         const v = randomVerse(lv);
-        const bg = randomBackground(lb);
+        const bg = take(lb);
         next.push({ key: `more-${prev.length + i}-${v.id}-${Math.random().toString(36).slice(2, 6)}`, verse: v, bg });
         lv = v.id;
         lb = bg;
       }
       return [...prev, ...next];
     });
-  }, []);
+  }, [take]);
 
-  const scrollByDir = (dir: 1 | -1) => {
+  const scrollByDir = useCallback((dir: 1 | -1) => {
     const el = containerRef.current;
     if (!el) return;
     el.scrollBy({ top: dir * el.clientHeight, behavior: "smooth" });
-  };
+  }, []);
+
+  // Keyboard navigation: ArrowDown/Space advance like a swipe-up; ArrowUp goes
+  // back. This makes the on-screen arrows secondary to expected UX behavior.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+        e.preventDefault();
+        scrollByDir(1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        scrollByDir(-1);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [scrollByDir]);
+
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">

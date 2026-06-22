@@ -1,18 +1,13 @@
 // Ambient background images for the Reflect feed.
 //
-// In production these load from Cloudinary. To switch the source, set
-// CLOUDINARY_CLOUD_NAME and list the public IDs in CLOUDINARY_PUBLIC_IDS — the
-// module will build delivery URLs automatically. Until then we fall back to a
-// curated set of high-quality ambient photographs.
+// Primary source is Cloudinary (203+ curated images), fetched a batch at a time
+// via the `fetchCloudinaryBatch` server function and consumed without repeats.
+// This module keeps a fast, curated fallback set used while Cloudinary "warms
+// up" (the first three slides) and whenever Cloudinary is unavailable or slow.
 
-const CLOUDINARY_CLOUD_NAME = ""; // e.g. "selah"
-const CLOUDINARY_PUBLIC_IDS: string[] = [
-  // "reflect/ocean-cliffs",
-  // "reflect/night-sky",
-];
-
-// Curated fallback (calm, ambient, full-bleed friendly).
-const FALLBACK_BACKGROUNDS: string[] = [
+// Curated fallback (calm, ambient, full-bleed friendly). These have proven to
+// load fast, so they cover the first slides and any Cloudinary gaps.
+export const FALLBACK_BACKGROUNDS: string[] = [
   "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&w=1600&q=80",
   "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1600&q=80",
   "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=80",
@@ -31,20 +26,31 @@ const FALLBACK_BACKGROUNDS: string[] = [
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80",
 ];
 
-function cloudinaryUrl(publicId: string): string {
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1600/${publicId}`;
+// Backwards-compatible alias used by other routes (e.g. the assistant).
+export const BACKGROUNDS: string[] = FALLBACK_BACKGROUNDS;
+
+/** Number of opening slides that should always use the fast fallback set. */
+export const WARMUP_SLIDES = 3;
+
+/** Fisher–Yates shuffle producing a new array (does not mutate input). */
+export function shuffle<T>(input: readonly T[]): T[] {
+  const arr = input.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
-export const BACKGROUNDS: string[] =
-  CLOUDINARY_CLOUD_NAME && CLOUDINARY_PUBLIC_IDS.length > 0
-    ? CLOUDINARY_PUBLIC_IDS.map(cloudinaryUrl)
-    : FALLBACK_BACKGROUNDS;
-
-export function randomBackground(exclude?: string): string {
-  if (BACKGROUNDS.length === 1) return BACKGROUNDS[0];
-  let b = BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
+/** Pick a random fallback background, optionally avoiding `exclude`. */
+export function randomFallbackBackground(exclude?: string): string {
+  if (FALLBACK_BACKGROUNDS.length === 1) return FALLBACK_BACKGROUNDS[0];
+  let b = FALLBACK_BACKGROUNDS[Math.floor(Math.random() * FALLBACK_BACKGROUNDS.length)];
   while (exclude && b === exclude) {
-    b = BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
+    b = FALLBACK_BACKGROUNDS[Math.floor(Math.random() * FALLBACK_BACKGROUNDS.length)];
   }
   return b;
 }
+
+/** Legacy name kept for existing callers. */
+export const randomBackground = randomFallbackBackground;
