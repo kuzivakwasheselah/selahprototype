@@ -15,6 +15,7 @@ type Search = {
   chapter?: number;
   verse?: number;
   text?: string;
+  bg?: string;
 };
 
 export const Route = createFileRoute("/reflect")({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/reflect")({
     chapter: s.chapter != null ? Number(s.chapter) : undefined,
     verse: s.verse != null ? Number(s.verse) : undefined,
     text: typeof s.text === "string" ? s.text : undefined,
+    bg: typeof s.bg === "string" ? s.bg : undefined,
   }),
   head: () => ({
     meta: [
