@@ -34,6 +34,8 @@ export function AppMenu() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, profile, signOut } = useAuth();
+  const prayerBadge = usePrayerBadge();
+
 
 
 
