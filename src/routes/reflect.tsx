@@ -91,7 +91,7 @@ function ReflectPage() {
     if (!seed) return;
     setItems((prev) => {
       if (prev[0]?.verse.id === seed.id && prev[0]?.key.startsWith("seed")) return prev;
-      const bg = randomBackground();
+      const bg = search.bg ?? randomBackground();
       return [{ key: `seed-${seed.id}-${Date.now()}`, verse: seed, bg }, ...prev];
     });
     containerRef.current?.scrollTo({ top: 0 });
