@@ -9,12 +9,10 @@ const KEY = "selah:profile";
 
 const COLORS = ["#c9a063", "#7a9e7e", "#8a7eb5", "#b5757e", "#6b9bb5", "#b59a6b"];
 
-function defaultProfile(): Profile {
-  return { name: "Friend", color: COLORS[Math.floor(Math.random() * COLORS.length)] };
-}
+const DEFAULT_PROFILE: Profile = { name: "Friend", color: COLORS[0] };
 
 export function useProfile() {
-  const [profile, setProfile] = useLocalStorage<Profile>(KEY, defaultProfile());
+  const [profile, setProfile] = useLocalStorage<Profile>(KEY, DEFAULT_PROFILE);
   const update = (patch: Partial<Profile>) => setProfile((p) => ({ ...p, ...patch }));
   return { profile, update };
 }
