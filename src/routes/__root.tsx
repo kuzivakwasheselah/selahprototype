@@ -80,7 +80,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Selah — Reflect on the Word of God" },
+      { title: "Selah: Pause & Reflect" },
       {
         name: "description",
         content:
@@ -88,13 +88,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "Selah" },
       { name: "theme-color", content: "#fcfbf8" },
-      { property: "og:title", content: "Selah — Reflect on the Word of God" },
+      { property: "og:title", content: "Selah: Pause & Reflect" },
       {
         property: "og:description",
         content: "A calm, reflective home for Scripture, prayer and Christian media.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Selah: Pause & Reflect" },
+      { name: "description", content: "A social media platform for Christian content." },
+      { property: "og:description", content: "A social media platform for Christian content." },
+      { name: "twitter:description", content: "A social media platform for Christian content." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d8504416-e464-4f89-991b-0e7dd7f9f744" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d8504416-e464-4f89-991b-0e7dd7f9f744" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
