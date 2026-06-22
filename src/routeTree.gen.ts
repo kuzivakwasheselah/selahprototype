@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as PrayersRouteImport } from './routes/prayers'
 import { Route as BibleRouteImport } from './routes/bible'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const SavedRoute = SavedRouteImport.update({
 const ReflectRoute = ReflectRouteImport.update({
   id: '/reflect',
   path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrayersRoute = PrayersRouteImport.update({
+  id: '/prayers',
+  path: '/prayers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BibleRoute = BibleRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bible': typeof BibleRoute
+  '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bible': typeof BibleRoute
+  '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bible': typeof BibleRoute
+  '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bible' | '/reflect' | '/saved'
+  fullPaths: '/' | '/bible' | '/prayers' | '/reflect' | '/saved'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bible' | '/reflect' | '/saved'
-  id: '__root__' | '/' | '/bible' | '/reflect' | '/saved'
+  to: '/' | '/bible' | '/prayers' | '/reflect' | '/saved'
+  id: '__root__' | '/' | '/bible' | '/prayers' | '/reflect' | '/saved'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BibleRoute: typeof BibleRoute
+  PrayersRoute: typeof PrayersRoute
   ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/reflect'
       fullPath: '/reflect'
       preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prayers': {
+      id: '/prayers'
+      path: '/prayers'
+      fullPath: '/prayers'
+      preLoaderRoute: typeof PrayersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bible': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BibleRoute: BibleRoute,
+  PrayersRoute: PrayersRoute,
   ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
 }
