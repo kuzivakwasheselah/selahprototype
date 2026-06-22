@@ -5,9 +5,7 @@ import {
   Send,
   HandHeart,
   X,
-  Crown,
   Sparkles,
-  Pencil,
   Plus,
   Users,
 } from "lucide-react";
