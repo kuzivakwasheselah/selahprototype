@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Settings as SettingsIcon,
   Download,
@@ -8,6 +8,10 @@ import {
   Heart,
   RefreshCw,
   Check,
+  Loader2,
+  Trash2,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,6 +21,8 @@ import { usePrayers } from "@/lib/prayers-store";
 import { useGroups } from "@/lib/groups-store";
 import { useDonations } from "@/lib/donations-store";
 import { useProfile, initials } from "@/lib/profile-store";
+import { useOfflineBible } from "@/lib/offline-bible";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -34,9 +40,19 @@ function SettingsPage() {
   const { groups } = useGroups();
   const { total } = useDonations();
   const { profile, update } = useProfile();
+  const { user, profile: authProfile, signOut, updateProfile } = useAuth();
+
+  const displayName = user ? (authProfile?.display_name ?? "Friend") : profile.name;
+  const avatarColor = user ? (authProfile?.avatar_color ?? "#c9a063") : profile.color;
+  const setName = (name: string) => {
+    if (user) updateProfile({ display_name: name });
+    else update({ name });
+  };
 
   const pct = Math.min(100, (VERSES.length / TOTAL_VERSES_TARGET) * 100);
   const generated = prayers.filter((p) => p.source === "generated").length;
+
+  const offline = useOfflineBible();
 
   const stats = [
     { icon: Bookmark, label: "Verses saved", value: saved.length },
@@ -69,19 +85,59 @@ function SettingsPage() {
       </section>
 
       {/* Offline */}
-      <button
-        type="button"
-        onClick={() => toast("Offline Bible", { description: "Downloading the Bible for in-app offline reading is coming soon." })}
-        className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left transition hover:border-primary/40"
-      >
-        <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent text-accent-foreground">
-          <Download className="h-5 w-5" />
-        </span>
-        <span className="flex-1">
-          <span className="block font-medium text-foreground">Download offline Bible</span>
-          <span className="text-sm text-muted-foreground">Read all 66 books without Wi-Fi</span>
-        </span>
-      </button>
+      <div className="mt-4 rounded-2xl border border-border bg-card p-4">
+        <button
+          type="button"
+          disabled={offline.downloading}
+          onClick={() => {
+            if (offline.isComplete) {
+              toast.success("Bible already available offline");
+              return;
+            }
+            offline.download().then(() => toast.success("Bible downloaded for offline use"));
+          }}
+          className="flex w-full items-center gap-3 text-left transition disabled:opacity-80"
+        >
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
+            {offline.downloading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : offline.isComplete ? (
+              <Check className="h-5 w-5" />
+            ) : (
+              <Download className="h-5 w-5" />
+            )}
+          </span>
+          <span className="flex-1">
+            <span className="block font-medium text-foreground">
+              {offline.isComplete ? "Bible saved offline" : "Download offline Bible"}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {offline.downloading
+                ? `Downloading… ${offline.progress}/${offline.total} books`
+                : offline.isComplete
+                  ? "All 66 books available without Wi-Fi"
+                  : "Read all 66 books without Wi-Fi"}
+            </span>
+          </span>
+        </button>
+        {(offline.downloading || offline.downloaded > 0) && (
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${(offline.downloaded / offline.total) * 100}%` }}
+            />
+          </div>
+        )}
+        {offline.isComplete && (
+          <button
+            type="button"
+            onClick={() => offline.clear().then(() => toast("Offline Bible removed"))}
+            className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" /> Remove offline Bible
+          </button>
+        )}
+      </div>
 
       {/* My account */}
       <section className="mt-6">
@@ -90,18 +146,41 @@ function SettingsPage() {
         <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
           <div
             className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-lg font-semibold text-white"
-            style={{ backgroundColor: profile.color }}
+            style={{ backgroundColor: avatarColor }}
           >
-            {initials(profile.name) || "F"}
+            {initials(displayName) || "F"}
           </div>
-          <input
-            value={profile.name}
-            onChange={(e) => update({ name: e.target.value })}
-            className="min-w-0 flex-1 bg-transparent font-serif text-xl text-foreground outline-none"
-            aria-label="Your name"
-          />
+          <div className="min-w-0 flex-1">
+            <input
+              value={displayName}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-transparent font-serif text-xl text-foreground outline-none"
+              aria-label="Your name"
+            />
+            {user?.email && <p className="truncate text-sm text-muted-foreground">{user.email}</p>}
+          </div>
           <Check className="h-5 w-5 text-primary" />
         </div>
+
+        {user ? (
+          <button
+            type="button"
+            onClick={async () => {
+              await signOut();
+              toast("Signed out");
+            }}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-medium transition hover:border-destructive/40 hover:text-destructive"
+          >
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
+        ) : (
+          <Link
+            to="/auth"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-medium text-primary-foreground transition hover:brightness-105"
+          >
+            <LogIn className="h-4 w-4" /> Sign in to sync across devices
+          </Link>
+        )}
 
         <div className="mt-3 grid grid-cols-2 gap-3">
           {stats.map(({ icon: Icon, label, value }) => (

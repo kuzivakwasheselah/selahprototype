@@ -64,14 +64,18 @@ function ReflectPage() {
   const [muted, setMuted] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<FeedItem[]>(() => {
+  // Built on the client only — random verse/image pairing must not run during
+  // SSR or it causes a hydration mismatch.
+  const [items, setItems] = useState<FeedItem[]>([]);
+
+  useEffect(() => {
     const seed = buildVerseFromSearch(search);
     const list: FeedItem[] = [];
     let lastV = "";
     let lastB = "";
     if (seed) {
       const bg = search.bg ?? randomBackground();
-      list.push({ key: `seed-${seed.id}`, verse: seed, bg });
+      list.push({ key: `seed-${seed.id}-${Date.now()}`, verse: seed, bg });
       lastV = seed.id;
       lastB = bg;
     }
@@ -82,21 +86,11 @@ function ReflectPage() {
       lastV = v.id;
       lastB = bg;
     }
-    return list;
-  });
-
-  // Re-seed when navigating into reflect with new verse params.
-  useEffect(() => {
-    const seed = buildVerseFromSearch(search);
-    if (!seed) return;
-    setItems((prev) => {
-      if (prev[0]?.verse.id === seed.id && prev[0]?.key.startsWith("seed")) return prev;
-      const bg = search.bg ?? randomBackground();
-      return [{ key: `seed-${seed.id}-${Date.now()}`, verse: seed, bg }, ...prev];
-    });
+    setItems(list);
     containerRef.current?.scrollTo({ top: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search.verseId, search.book, search.chapter, search.verse]);
+  }, [search.verseId, search.book, search.chapter, search.verse, search.bg]);
+
 
   const appendMore = useCallback(() => {
     setItems((prev) => {
