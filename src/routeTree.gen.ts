@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ReflectRouteImport } from './routes/reflect'
 import { Route as PrayersRouteImport } from './routes/prayers'
@@ -18,6 +19,11 @@ import { Route as BibleRouteImport } from './routes/bible'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PrayersGroupsGroupIdRouteImport } from './routes/prayers.groups.$groupId'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SavedRoute = SavedRouteImport.update({
   id: '/saved',
   path: '/saved',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/prayers': typeof PrayersRouteWithChildren
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
+  '/settings': typeof SettingsRoute
   '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/prayers': typeof PrayersRouteWithChildren
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
+  '/settings': typeof SettingsRoute
   '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/prayers': typeof PrayersRouteWithChildren
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
+  '/settings': typeof SettingsRoute
   '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/prayers'
     | '/reflect'
     | '/saved'
+    | '/settings'
     | '/prayers/groups/$groupId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/prayers'
     | '/reflect'
     | '/saved'
+    | '/settings'
     | '/prayers/groups/$groupId'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/prayers'
     | '/reflect'
     | '/saved'
+    | '/settings'
     | '/prayers/groups/$groupId'
   fileRoutesById: FileRoutesById
 }
@@ -131,10 +143,18 @@ export interface RootRouteChildren {
   PrayersRoute: typeof PrayersRouteWithChildren
   ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/saved': {
       id: '/saved'
       path: '/saved'
@@ -213,6 +233,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrayersRoute: PrayersRouteWithChildren,
   ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
