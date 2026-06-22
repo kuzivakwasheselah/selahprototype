@@ -4,9 +4,9 @@ import { Bookmark, BookOpen, ChevronDown, ChevronUp, Volume2, VolumeX, Check } f
 import { toast } from "sonner";
 
 import { VERSES, randomVerse, getVerseById, type Verse } from "@/data/verses";
-import { randomBackground } from "@/data/backgrounds";
 import { downloadWallpaper } from "@/lib/wallpaper";
 import { useSavedWallpapers } from "@/lib/saved-store";
+import { useBackgroundPool } from "@/hooks/use-background-pool";
 import { cn } from "@/lib/utils";
 
 type Search = {
