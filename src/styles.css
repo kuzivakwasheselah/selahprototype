@@ -143,6 +143,24 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 22%, transparent);
+    border-radius: 9999px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--foreground) 34%, transparent);
+  }
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 22%, transparent) transparent;
+  }
   .reflect-snap {
     scroll-snap-type: y mandatory;
   }

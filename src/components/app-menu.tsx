@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { initials } from "@/lib/profile-store";
+import { usePrayerBadge } from "@/lib/prayers-store";
 import { toast } from "sonner";
 
 const NAV = [
@@ -33,6 +34,8 @@ export function AppMenu() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, profile, signOut } = useAuth();
+  const prayerBadge = usePrayerBadge();
+
 
 
 
@@ -80,6 +83,7 @@ export function AppMenu() {
         <nav className="flex-1 space-y-1 px-3">
           {NAV.map(({ to, label, icon: Icon }) => {
             const active = pathname === to || pathname.startsWith(`${to}/`);
+            const badge = to === "/prayers" ? prayerBadge : 0;
             return (
               <Link
                 key={to}
@@ -93,10 +97,16 @@ export function AppMenu() {
                 )}
               >
                 <Icon className={cn("h-5 w-5", active ? "text-primary" : "text-muted-foreground")} />
-                {label}
+                <span className="flex-1">{label}</span>
+                {badge > 0 && (
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-semibold leading-none text-primary-foreground">
+                    {badge}
+                  </span>
+                )}
               </Link>
             );
           })}
+
         </nav>
 
         <div className="space-y-3 p-4">

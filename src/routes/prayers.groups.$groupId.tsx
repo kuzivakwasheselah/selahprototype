@@ -98,7 +98,7 @@ function GroupChatPage() {
       {/* Messages */}
       <div className="no-scrollbar flex-1 space-y-3 overflow-y-auto px-4 py-5">
         {group.messages.map((m) => (
-          <div key={m.id} className={cn("flex items-end gap-2", m.self ? "flex-row-reverse" : "flex-row")}>
+          <div key={m.id} className={cn("flex items-end gap-2", m.self ? "flex-row" : "flex-row-reverse")}>
             {!m.self && (
               <div
                 className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-semibold text-white"
@@ -110,7 +110,9 @@ function GroupChatPage() {
             <div
               className={cn(
                 "max-w-[78%] rounded-2xl px-3.5 py-2",
-                m.self ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card",
+                m.self
+                  ? "rounded-bl-sm bg-primary text-primary-foreground"
+                  : "rounded-br-sm border border-border bg-popover text-foreground shadow-soft",
               )}
             >
               {!m.self && (
@@ -125,6 +127,7 @@ function GroupChatPage() {
             </div>
           </div>
         ))}
+
         <div ref={endRef} />
       </div>
 

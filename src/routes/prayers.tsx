@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   HandHeart,
   Pencil,
@@ -11,6 +11,8 @@ import {
   ChevronRight,
   Trash2,
   Copy,
+  Clock,
+  UserPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,16 +27,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { usePrayers, type Prayer } from "@/lib/prayers-store";
-import { useGroups } from "@/lib/groups-store";
-import { useProfile, initials } from "@/lib/profile-store";
+import { usePrayers, useNow, type Prayer } from "@/lib/prayers-store";
+import { useGroups, extractInviteCode } from "@/lib/groups-store";
+import { useProfile } from "@/lib/profile-store";
+import { useAuth } from "@/hooks/use-auth";
 import { generatePrayer } from "@/lib/prayer-gen";
 
 export const Route = createFileRoute("/prayers")({
   head: () => ({
     meta: [
       { title: "Prayers — Selah" },
-      { name: "description", content: "Write or generate personal prayers, and pray together in small prayer groups." },
+      { name: "description", content: "Write or request personal prayers, and pray together in small prayer groups." },
     ],
   }),
   component: PrayersPage,
@@ -42,6 +45,16 @@ export const Route = createFileRoute("/prayers")({
 
 function PrayersPage() {
   const [tab, setTab] = useState<"personal" | "group">("personal");
+  const { acknowledgeRevealed } = usePrayers();
+
+  // While viewing Prayers, mark answered prayers as seen so the nav badge clears.
+  const ackRef = useRef(acknowledgeRevealed);
+  ackRef.current = acknowledgeRevealed;
+  useEffect(() => {
+    ackRef.current();
+    const id = setInterval(() => ackRef.current(), 4000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="mx-auto min-h-[100dvh] max-w-2xl px-5 pb-20 pt-20">
@@ -74,8 +87,12 @@ function PrayersPage() {
 /* -------------------------------- Personal -------------------------------- */
 
 function PersonalTab() {
-  const { items, add, update, remove } = usePrayers();
-  const [editor, setEditor] = useState<{ mode: "write" | "generate" | "edit"; prayer?: Prayer } | null>(null);
+  const { items, add, requestPrayer, update, remove } = usePrayers();
+  const now = useNow(3000);
+  const [editor, setEditor] = useState<{ mode: "write" | "request" | "edit"; prayer?: Prayer } | null>(null);
+
+  const pending = items.filter((p) => p.revealAt && p.revealAt > now);
+  const visible = items.filter((p) => !p.revealAt || p.revealAt <= now);
 
   return (
     <div>
@@ -89,20 +106,36 @@ function PersonalTab() {
         </button>
         <button
           type="button"
-          onClick={() => setEditor({ mode: "generate" })}
+          onClick={() => setEditor({ mode: "request" })}
           className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-medium text-primary-foreground transition hover:brightness-105"
         >
-          <Sparkles className="h-4 w-4" /> Generate
+          <Sparkles className="h-4 w-4" /> Request
         </button>
       </div>
 
       <div className="mt-6 space-y-3">
-        {items.length === 0 && (
+        {pending.map((p) => (
+          <div
+            key={p.id}
+            className="flex items-start gap-3 rounded-2xl border border-dashed border-primary/40 bg-accent/40 p-4"
+          >
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-primary" />
+            <div>
+              <h3 className="font-serif text-lg text-foreground">Your prayer request has been received</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                It will be answered shortly. We'll let you know the moment it's ready.
+              </p>
+            </div>
+          </div>
+        ))}
+
+        {visible.length === 0 && pending.length === 0 && (
           <p className="py-12 text-center text-muted-foreground">
-            No prayers yet. Write your own or let Selah help you begin.
+            No prayers yet. Write your own or request one from Selah.
           </p>
         )}
-        {items.map((p) => (
+
+        {visible.map((p) => (
           <button
             key={p.id}
             type="button"
@@ -117,7 +150,7 @@ function PersonalTab() {
                   p.source === "generated" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground",
                 )}
               >
-                {p.source === "generated" ? "Generated" : "Written"}
+                {p.source === "generated" ? "Answered" : "Written"}
               </span>
             </div>
             <p className="mt-1.5 whitespace-pre-line text-sm text-muted-foreground line-clamp-3">{p.body}</p>
@@ -130,12 +163,18 @@ function PersonalTab() {
           mode={editor.mode}
           prayer={editor.prayer}
           onClose={() => setEditor(null)}
+          onRequest={(intention) => {
+            const out = generatePrayer(intention);
+            requestPrayer(out);
+            toast.success("Your prayer request has been received and will be answered shortly.");
+            setEditor(null);
+          }}
           onSave={(data) => {
             if (editor.mode === "edit" && editor.prayer) {
               update(editor.prayer.id, data);
               toast.success("Prayer updated");
             } else {
-              add({ ...data, source: editor.mode === "generate" ? "generated" : "written" });
+              add({ ...data, source: "written" });
               toast.success("Prayer saved");
             }
             setEditor(null);
@@ -160,74 +199,75 @@ function PrayerEditor({
   prayer,
   onClose,
   onSave,
+  onRequest,
   onDelete,
 }: {
-  mode: "write" | "generate" | "edit";
+  mode: "write" | "request" | "edit";
   prayer?: Prayer;
   onClose: () => void;
   onSave: (d: { title: string; body: string }) => void;
+  onRequest: (intention: string) => void;
   onDelete?: () => void;
 }) {
   const [title, setTitle] = useState(prayer?.title ?? "");
   const [body, setBody] = useState(prayer?.body ?? "");
   const [intention, setIntention] = useState("");
-  const [generated, setGenerated] = useState(mode !== "generate");
-
-  const doGenerate = () => {
-    const out = generatePrayer(intention);
-    setTitle(out.title);
-    setBody(out.body);
-    setGenerated(true);
-  };
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[88dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl">
-            {mode === "edit" ? "Edit prayer" : mode === "generate" ? "Generate a prayer" : "Write a prayer"}
+            {mode === "edit" ? "Edit prayer" : mode === "request" ? "Request a prayer" : "Write a prayer"}
           </DialogTitle>
-          {mode === "generate" && !generated && (
+          {mode === "request" && (
             <DialogDescription>What's on your heart? Selah will shape it into a prayer.</DialogDescription>
           )}
         </DialogHeader>
 
-        {mode === "generate" && !generated ? (
+        {mode === "request" ? (
           <div className="space-y-3">
             <Textarea
               value={intention}
               onChange={(e) => setIntention(e.target.value)}
               placeholder="e.g. peace for my family, healing for a friend, gratitude…"
               rows={3}
+              className="resize-none scrollbar-custom"
             />
             <button
               type="button"
-              onClick={doGenerate}
+              onClick={() => onRequest(intention)}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition hover:brightness-105"
             >
-              <Sparkles className="h-4 w-4" /> Generate prayer
+              <Sparkles className="h-4 w-4" /> Request Prayer
             </button>
           </div>
         ) : (
           <div className="space-y-3">
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-            <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={9} placeholder="Your prayer…" />
+            <Textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={9}
+              placeholder="Your prayer…"
+              className="resize-none scrollbar-custom"
+            />
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:justify-between">
-          {onDelete ? (
-            <button
-              type="button"
-              onClick={onDelete}
-              className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-destructive transition hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" /> Delete
-            </button>
-          ) : (
-            <span />
-          )}
-          {(generated || mode !== "generate") && (
+        {mode !== "request" && (
+          <DialogFooter className="gap-2 sm:justify-between">
+            {onDelete ? (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-destructive transition hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" /> Delete
+              </button>
+            ) : (
+              <span />
+            )}
             <button
               type="button"
               onClick={() => {
@@ -238,8 +278,8 @@ function PrayerEditor({
             >
               Save prayer
             </button>
-          )}
-        </DialogFooter>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -250,25 +290,47 @@ function PrayerEditor({
 function GroupTab() {
   const { created, joined, createGroup, joinGroup, leaveGroup } = useGroups();
   const { profile } = useProfile();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [dialog, setDialog] = useState<"create" | "join" | null>(null);
+  const [authWall, setAuthWall] = useState(false);
   const [value, setValue] = useState("");
 
+  const requireAuth = () => {
+    if (!user) {
+      setAuthWall(true);
+      return false;
+    }
+    return true;
+  };
+
   const submit = () => {
-    if (!value.trim()) return toast.error(dialog === "create" ? "Name your group" : "Enter an invite code");
+    if (!value.trim()) return toast.error(dialog === "create" ? "Name your group" : "Paste an invite code or link");
     const self = { name: profile.name, color: profile.color };
-    const res = dialog === "create" ? createGroup(value.trim(), self) : joinGroup(value.trim(), self);
-    if (res.error) toast.error(res.error);
-    else toast.success(dialog === "create" ? "Group created" : "Joined group");
-    setValue("");
-    setDialog(null);
+
+    if (dialog === "create") {
+      const res = createGroup(value.trim(), self);
+      if (res.error) return toast.error(res.error);
+      setValue("");
+      setDialog(null);
+      toast.success("Group created", { description: `Invite code: ${res.group!.code}` });
+      navigate({ to: "/prayers/groups/$groupId", params: { groupId: res.group!.id } });
+    } else {
+      const res = joinGroup(extractInviteCode(value), self);
+      if (res.error) return toast.error(res.error);
+      setValue("");
+      setDialog(null);
+      toast.success("Joined group");
+      navigate({ to: "/prayers/groups/$groupId", params: { groupId: res.group!.id } });
+    }
   };
 
   return (
     <div className="space-y-4">
       {!created && !joined && (
         <p className="rounded-2xl bg-secondary/60 p-4 text-sm text-muted-foreground">
-          Prayer groups are small and intentional — up to 10 people, text only. You can create one
-          group and join one group.
+          Prayer groups are small and intentional — up to 10 people, text only. Create a group to get a
+          shareable invite link, or join one with a code.
         </p>
       )}
 
@@ -276,7 +338,10 @@ function GroupTab() {
         <button
           type="button"
           disabled={!!created}
-          onClick={() => setDialog("create")}
+          onClick={() => {
+            if (!requireAuth()) return;
+            setDialog("create");
+          }}
           className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card py-6 text-sm font-medium transition enabled:hover:border-primary/40 disabled:opacity-50"
         >
           <Plus className="h-5 w-5 text-primary" /> Create Group
@@ -284,7 +349,10 @@ function GroupTab() {
         <button
           type="button"
           disabled={!!joined}
-          onClick={() => setDialog("join")}
+          onClick={() => {
+            if (!requireAuth()) return;
+            setDialog("join");
+          }}
           className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card py-6 text-sm font-medium transition enabled:hover:border-primary/40 disabled:opacity-50"
         >
           <LogIn className="h-5 w-5 text-primary" /> Join Group
@@ -304,13 +372,13 @@ function GroupTab() {
             <DialogDescription>
               {dialog === "create"
                 ? "Give your group a name. You'll get an invite link to share."
-                : "Paste the invite code shared by a group creator."}
+                : "Paste the invite code or the full invite link shared with you."}
             </DialogDescription>
           </DialogHeader>
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder={dialog === "create" ? "Group name" : "Invite code"}
+            placeholder={dialog === "create" ? "Group name" : "Invite code or link"}
             onKeyDown={(e) => e.key === "Enter" && submit()}
           />
           <DialogFooter>
@@ -321,6 +389,30 @@ function GroupTab() {
             >
               {dialog === "create" ? "Create" : "Join"}
             </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auth wall for logged-out users trying to use groups */}
+      <Dialog open={authWall} onOpenChange={(o) => !o && setAuthWall(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="mx-auto mb-2 grid h-14 w-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
+              <UserPlus className="h-7 w-7" />
+            </div>
+            <DialogTitle className="text-center font-serif text-2xl">Create an account to pray together</DialogTitle>
+            <DialogDescription className="text-center">
+              Prayer groups are shared between members, so we'd love for you to create a free account first.
+              It only takes a moment, and you'll be right back here to join.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            <Link
+              to="/auth"
+              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition hover:brightness-105"
+            >
+              <LogIn className="h-4 w-4" /> Create an account
+            </Link>
           </DialogFooter>
         </DialogContent>
       </Dialog>
