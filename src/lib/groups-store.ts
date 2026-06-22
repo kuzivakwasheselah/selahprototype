@@ -35,6 +35,19 @@ function code() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
+/**
+ * Accepts either a raw invite code or a full invite link (e.g.
+ * "https://selah.app/prayers?invite=AB12CD") and returns the bare code.
+ */
+export function extractInviteCode(input: string): string {
+  const trimmed = input.trim();
+  const match = trimmed.match(/[?&]invite=([^&\s#]+)/i);
+  if (match) return match[1].toUpperCase();
+  // If a full URL was pasted without a parsable param, fall back to the last segment.
+  const segment = trimmed.split(/[/?#=]/).filter(Boolean).pop() ?? trimmed;
+  return segment.toUpperCase();
+}
+
 export function useGroups() {
   const [groups, setGroups] = useLocalStorage<Group[]>(KEY, []);
 
