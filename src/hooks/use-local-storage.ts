@@ -42,9 +42,13 @@ export function useLocalStorage<T>(key: string, initial: T) {
         const resolved = typeof next === "function" ? (next as (p: T) => T)(prev) : next;
         try {
           localStorage.setItem(key, JSON.stringify(resolved));
-          window.dispatchEvent(
-            new CustomEvent("selah:storage", { detail: { key, src: idRef.current } }),
-          );
+          // Defer the cross-instance notification so we never trigger a setState
+          // in another component while React is still rendering this one.
+          queueMicrotask(() => {
+            window.dispatchEvent(
+              new CustomEvent("selah:storage", { detail: { key, src: idRef.current } }),
+            );
+          });
         } catch {
           /* ignore */
         }
