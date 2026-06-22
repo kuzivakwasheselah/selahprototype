@@ -30,7 +30,7 @@ export const IMAGES: MediaImage[] = [
   img("i5", "photo-1445820200644-3b3f9b40d3d2", "Cathedral light", 6),
   img("i6", "photo-1499209974431-9dddcece7f88", "Candle prayer", 4),
   img("i7", "photo-1473773508845-188df298d2d1", "Stained glass", 5),
-  img("i8", "photo-1504052434569-70 ad5836ab65".replace(" ", ""), "Quiet chapel", 5),
+  img("i8", "photo-1504052434569-70ad5836ab65", "Quiet chapel", 5),
   img("i9", "photo-1469474968028-56623f02e42e", "Wilderness", 4),
   img("i10", "photo-1518173946687-a4c8892bbd9f", "Bread & vine", 6),
   img("i11", "photo-1510590337019-5ef8d3d32116", "Field of light", 4),
