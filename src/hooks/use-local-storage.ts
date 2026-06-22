@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * SSR-safe localStorage-backed state. Reads on mount (client only), writes on
@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 export function useLocalStorage<T>(key: string, initial: T) {
   const [value, setValue] = useState<T>(initial);
   const [hydrated, setHydrated] = useState(false);
+  const idRef = useRef(Math.random().toString(36).slice(2));
 
   useEffect(() => {
     try {
@@ -18,8 +19,11 @@ export function useLocalStorage<T>(key: string, initial: T) {
     setHydrated(true);
 
     const onChange = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { key: string } | undefined;
+      const detail = (e as CustomEvent).detail as { key: string; src: string } | undefined;
       if (detail?.key !== key) return;
+      // Ignore events dispatched by this same hook instance — otherwise a write
+      // would re-read and re-set, which can duplicate optimistic updates.
+      if (detail?.src === idRef.current) return;
       try {
         const raw = localStorage.getItem(key);
         setValue(raw != null ? (JSON.parse(raw) as T) : initial);
@@ -38,7 +42,9 @@ export function useLocalStorage<T>(key: string, initial: T) {
         const resolved = typeof next === "function" ? (next as (p: T) => T)(prev) : next;
         try {
           localStorage.setItem(key, JSON.stringify(resolved));
-          window.dispatchEvent(new CustomEvent("selah:storage", { detail: { key } }));
+          window.dispatchEvent(
+            new CustomEvent("selah:storage", { detail: { key, src: idRef.current } }),
+          );
         } catch {
           /* ignore */
         }
