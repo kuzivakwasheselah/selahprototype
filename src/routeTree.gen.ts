@@ -9,38 +9,234 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SavedRouteImport } from './routes/saved'
+import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as PrayersRouteImport } from './routes/prayers'
+import { Route as MediaRouteImport } from './routes/media'
+import { Route as DonateRouteImport } from './routes/donate'
+import { Route as BibleRouteImport } from './routes/bible'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PrayersGroupsGroupIdRouteImport } from './routes/prayers.groups.$groupId'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReflectRoute = ReflectRouteImport.update({
+  id: '/reflect',
+  path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrayersRoute = PrayersRouteImport.update({
+  id: '/prayers',
+  path: '/prayers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaRoute = MediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonateRoute = DonateRouteImport.update({
+  id: '/donate',
+  path: '/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BibleRoute = BibleRouteImport.update({
+  id: '/bible',
+  path: '/bible',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrayersGroupsGroupIdRoute = PrayersGroupsGroupIdRouteImport.update({
+  id: '/groups/$groupId',
+  path: '/groups/$groupId',
+  getParentRoute: () => PrayersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/bible': typeof BibleRoute
+  '/donate': typeof DonateRoute
+  '/media': typeof MediaRoute
+  '/prayers': typeof PrayersRouteWithChildren
+  '/reflect': typeof ReflectRoute
+  '/saved': typeof SavedRoute
+  '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/bible': typeof BibleRoute
+  '/donate': typeof DonateRoute
+  '/media': typeof MediaRoute
+  '/prayers': typeof PrayersRouteWithChildren
+  '/reflect': typeof ReflectRoute
+  '/saved': typeof SavedRoute
+  '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
+  '/bible': typeof BibleRoute
+  '/donate': typeof DonateRoute
+  '/media': typeof MediaRoute
+  '/prayers': typeof PrayersRouteWithChildren
+  '/reflect': typeof ReflectRoute
+  '/saved': typeof SavedRoute
+  '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/assistant'
+    | '/bible'
+    | '/donate'
+    | '/media'
+    | '/prayers'
+    | '/reflect'
+    | '/saved'
+    | '/settings'
+    | '/sitemap.xml'
+    | '/prayers/groups/$groupId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/assistant'
+    | '/bible'
+    | '/donate'
+    | '/media'
+    | '/prayers'
+    | '/reflect'
+    | '/saved'
+    | '/settings'
+    | '/sitemap.xml'
+    | '/prayers/groups/$groupId'
+  id:
+    | '__root__'
+    | '/'
+    | '/assistant'
+    | '/bible'
+    | '/donate'
+    | '/media'
+    | '/prayers'
+    | '/reflect'
+    | '/saved'
+    | '/settings'
+    | '/sitemap.xml'
+    | '/prayers/groups/$groupId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssistantRoute: typeof AssistantRoute
+  BibleRoute: typeof BibleRoute
+  DonateRoute: typeof DonateRoute
+  MediaRoute: typeof MediaRoute
+  PrayersRoute: typeof PrayersRouteWithChildren
+  ReflectRoute: typeof ReflectRoute
+  SavedRoute: typeof SavedRoute
+  SettingsRoute: typeof SettingsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reflect': {
+      id: '/reflect'
+      path: '/reflect'
+      fullPath: '/reflect'
+      preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prayers': {
+      id: '/prayers'
+      path: '/prayers'
+      fullPath: '/prayers'
+      preLoaderRoute: typeof PrayersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media': {
+      id: '/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof MediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donate': {
+      id: '/donate'
+      path: '/donate'
+      fullPath: '/donate'
+      preLoaderRoute: typeof DonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bible': {
+      id: '/bible'
+      path: '/bible'
+      fullPath: '/bible'
+      preLoaderRoute: typeof BibleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +244,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prayers/groups/$groupId': {
+      id: '/prayers/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/prayers/groups/$groupId'
+      preLoaderRoute: typeof PrayersGroupsGroupIdRouteImport
+      parentRoute: typeof PrayersRoute
+    }
   }
 }
 
+interface PrayersRouteChildren {
+  PrayersGroupsGroupIdRoute: typeof PrayersGroupsGroupIdRoute
+}
+
+const PrayersRouteChildren: PrayersRouteChildren = {
+  PrayersGroupsGroupIdRoute: PrayersGroupsGroupIdRoute,
+}
+
+const PrayersRouteWithChildren =
+  PrayersRoute._addFileChildren(PrayersRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssistantRoute: AssistantRoute,
+  BibleRoute: BibleRoute,
+  DonateRoute: DonateRoute,
+  MediaRoute: MediaRoute,
+  PrayersRoute: PrayersRouteWithChildren,
+  ReflectRoute: ReflectRoute,
+  SavedRoute: SavedRoute,
+  SettingsRoute: SettingsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
