@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as BibleRouteImport } from './routes/bible'
 import { Route as IndexRouteImport } from './routes/index'
 
 const ReflectRoute = ReflectRouteImport.update({
   id: '/reflect',
   path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BibleRoute = BibleRouteImport.update({
+  id: '/bible',
+  path: '/bible',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
   '/reflect': typeof ReflectRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
   '/reflect': typeof ReflectRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
   '/reflect': typeof ReflectRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/reflect'
+  fullPaths: '/' | '/bible' | '/reflect'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/reflect'
-  id: '__root__' | '/' | '/reflect'
+  to: '/' | '/bible' | '/reflect'
+  id: '__root__' | '/' | '/bible' | '/reflect'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibleRoute: typeof BibleRoute
   ReflectRoute: typeof ReflectRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/reflect'
       fullPath: '/reflect'
       preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bible': {
+      id: '/bible'
+      path: '/bible'
+      fullPath: '/bible'
+      preLoaderRoute: typeof BibleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibleRoute: BibleRoute,
   ReflectRoute: ReflectRoute,
 }
 export const routeTree = rootRouteImport
