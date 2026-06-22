@@ -70,7 +70,7 @@ function ReflectPage() {
     let lastV = "";
     let lastB = "";
     if (seed) {
-      const bg = randomBackground();
+      const bg = search.bg ?? randomBackground();
       list.push({ key: `seed-${seed.id}`, verse: seed, bg });
       lastV = seed.id;
       lastB = bg;
