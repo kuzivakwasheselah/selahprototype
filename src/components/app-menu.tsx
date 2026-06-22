@@ -11,8 +11,13 @@ import {
   MessageCircle,
   Settings,
   Heart,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { initials } from "@/lib/profile-store";
+import { toast } from "sonner";
 
 const NAV = [
   { to: "/reflect", label: "Reflect", icon: BookOpen },
@@ -27,6 +32,9 @@ const NAV = [
 export function AppMenu() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user, profile, signOut } = useAuth();
+
+
 
   return (
     <>
@@ -91,7 +99,40 @@ export function AppMenu() {
           })}
         </nav>
 
-        <div className="p-4">
+        <div className="space-y-3 p-4">
+          {user ? (
+            <div className="flex items-center gap-3 rounded-2xl bg-secondary px-3 py-2.5">
+              <div
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-white"
+                style={{ backgroundColor: profile?.avatar_color ?? "#c9a063" }}
+              >
+                {initials(profile?.display_name ?? "Friend") || "F"}
+              </div>
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+                {profile?.display_name ?? "Friend"}
+              </span>
+              <button
+                type="button"
+                onClick={async () => {
+                  await signOut();
+                  setOpen(false);
+                  toast("Signed out");
+                }}
+                aria-label="Sign out"
+                className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-background hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/auth"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-medium transition hover:border-primary/40"
+            >
+              <LogIn className="h-4 w-4 text-primary" /> Sign in
+            </Link>
+          )}
           <Link
             to="/donate"
             onClick={() => setOpen(false)}

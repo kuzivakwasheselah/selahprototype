@@ -17,6 +17,7 @@ import { Route as PrayersRouteImport } from './routes/prayers'
 import { Route as MediaRouteImport } from './routes/media'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as BibleRouteImport } from './routes/bible'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PrayersGroupsGroupIdRouteImport } from './routes/prayers.groups.$groupId'
@@ -61,6 +62,11 @@ const BibleRoute = BibleRouteImport.update({
   path: '/bible',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssistantRoute = AssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
@@ -80,6 +86,7 @@ const PrayersGroupsGroupIdRoute = PrayersGroupsGroupIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/auth': typeof AuthRoute
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/auth'
     | '/bible'
     | '/donate'
     | '/media'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assistant'
+    | '/auth'
     | '/bible'
     | '/donate'
     | '/media'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assistant'
+    | '/auth'
     | '/bible'
     | '/donate'
     | '/media'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistantRoute: typeof AssistantRoute
+  AuthRoute: typeof AuthRoute
   BibleRoute: typeof BibleRoute
   DonateRoute: typeof DonateRoute
   MediaRoute: typeof MediaRoute
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assistant': {
       id: '/assistant'
       path: '/assistant'
@@ -268,6 +288,7 @@ const PrayersRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistantRoute: AssistantRoute,
+  AuthRoute: AuthRoute,
   BibleRoute: BibleRoute,
   DonateRoute: DonateRoute,
   MediaRoute: MediaRoute,

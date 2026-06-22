@@ -100,13 +100,16 @@ export const AUDIOS: MediaAudio[] = [
   },
 ];
 
-export const ALL_MEDIA: MediaItem[] = shuffle([...IMAGES, ...VIDEOS, ...AUDIOS]);
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+// Deterministic interleave so the Explore order is identical on server and
+// client (avoids hydration mismatch). Visual variety still comes from the mix.
+function interleave(...lists: MediaItem[][]): MediaItem[] {
+  const out: MediaItem[] = [];
+  const max = Math.max(...lists.map((l) => l.length));
+  for (let i = 0; i < max; i++) {
+    for (const l of lists) if (l[i]) out.push(l[i]);
   }
-  return a;
+  return out;
 }
+
+export const ALL_MEDIA: MediaItem[] = interleave(IMAGES, VIDEOS, AUDIOS);
+

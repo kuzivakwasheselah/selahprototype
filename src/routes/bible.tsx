@@ -10,10 +10,12 @@ import {
   ChevronRight,
   Maximize2,
   Loader2,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { BIBLE_BOOKS, getBook } from "@/data/books";
+import { getOfflineChapter, useOfflineBible } from "@/lib/offline-bible";
 import { cn } from "@/lib/utils";
 
 type Search = {
@@ -50,10 +52,20 @@ function BiblePage() {
 function BooksView() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const { downloaded, total, isComplete, downloading, progress, download } = useOfflineBible();
   const results = useMemo(
     () => BIBLE_BOOKS.filter((b) => b.name.toLowerCase().includes(q.trim().toLowerCase())),
     [q],
   );
+
+  const onOffline = () => {
+    if (isComplete) {
+      toast.success("Bible available offline", { description: "All 66 books are saved on this device." });
+      return;
+    }
+    toast("Downloading the Bible…", { description: "Saving all 66 books for offline reading." });
+    download().then(() => toast.success("Bible downloaded for offline use"));
+  };
 
   return (
     <div className="mx-auto min-h-[100dvh] max-w-2xl px-5 pb-16 pt-20">
@@ -64,11 +76,26 @@ function BooksView() {
         </h1>
         <button
           type="button"
-          onClick={() => toast("Offline Bible", { description: "Download for offline reading is coming soon." })}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+          onClick={onOffline}
+          disabled={downloading}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground disabled:opacity-70"
         >
-          <Download className="h-4 w-4" />
-          Offline
+          {downloading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {progress}/{total}
+            </>
+          ) : isComplete ? (
+            <>
+              <Check className="h-4 w-4 text-primary" />
+              Offline
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Offline{downloaded > 0 ? ` (${downloaded}/${total})` : ""}
+            </>
+          )}
         </button>
       </div>
 
@@ -155,6 +182,10 @@ function useChapter(book: string, chapter: number) {
   return useQuery({
     queryKey: ["bible", book, chapter],
     queryFn: async (): Promise<ApiVerse[]> => {
+      // Offline-first: use the downloaded KJV when available.
+      const offline = await getOfflineChapter(book, chapter);
+      if (offline && offline.length) return offline;
+
       const ref = encodeURIComponent(`${book} ${chapter}`);
       const res = await fetch(`https://bible-api.com/${ref}?translation=kjv`);
       if (!res.ok) throw new Error("Could not load chapter");
