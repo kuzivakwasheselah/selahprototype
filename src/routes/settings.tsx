@@ -3,7 +3,6 @@ import {
   Settings as SettingsIcon,
   Download,
   Bookmark,
-  Users,
   Sparkles,
   Heart,
   RefreshCw,
@@ -18,7 +17,6 @@ import { toast } from "sonner";
 import { VERSES, TOTAL_VERSES_TARGET } from "@/data/verses";
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { usePrayers } from "@/lib/prayers-store";
-import { useGroups } from "@/lib/groups-store";
 import { useDonations } from "@/lib/donations-store";
 import { useProfile, initials } from "@/lib/profile-store";
 import { useOfflineBible } from "@/lib/offline-bible";
@@ -37,7 +35,6 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { items: saved } = useSavedWallpapers();
   const { items: prayers } = usePrayers();
-  const { groups } = useGroups();
   const { total } = useDonations();
   const { profile, update } = useProfile();
   const { user, profile: authProfile, signOut, updateProfile } = useAuth();
@@ -56,7 +53,6 @@ function SettingsPage() {
 
   const stats = [
     { icon: Bookmark, label: "Verses saved", value: saved.length },
-    { icon: Users, label: "Groups", value: groups.length },
     { icon: Sparkles, label: "Prayers generated", value: generated },
     { icon: Heart, label: "Donated", value: `$${total}` },
   ];
