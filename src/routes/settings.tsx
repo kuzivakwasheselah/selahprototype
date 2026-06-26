@@ -53,7 +53,6 @@ function SettingsPage() {
 
   const stats = [
     { icon: Bookmark, label: "Verses saved", value: saved.length },
-    { icon: Users, label: "Groups", value: groups.length },
     { icon: Sparkles, label: "Prayers generated", value: generated },
     { icon: Heart, label: "Donated", value: `$${total}` },
   ];
