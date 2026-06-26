@@ -20,7 +20,6 @@ import { Route as BibleRouteImport } from './routes/bible'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PrayersGroupsGroupIdRouteImport } from './routes/prayers.groups.$groupId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -77,11 +76,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrayersGroupsGroupIdRoute = PrayersGroupsGroupIdRouteImport.update({
-  id: '/groups/$groupId',
-  path: '/groups/$groupId',
-  getParentRoute: () => PrayersRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,12 +84,11 @@ export interface FileRoutesByFullPath {
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
-  '/prayers': typeof PrayersRouteWithChildren
+  '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,12 +97,11 @@ export interface FileRoutesByTo {
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
-  '/prayers': typeof PrayersRouteWithChildren
+  '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,12 +111,11 @@ export interface FileRoutesById {
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
-  '/prayers': typeof PrayersRouteWithChildren
+  '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/prayers/groups/$groupId': typeof PrayersGroupsGroupIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,7 +131,6 @@ export interface FileRouteTypes {
     | '/saved'
     | '/settings'
     | '/sitemap.xml'
-    | '/prayers/groups/$groupId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -154,7 +144,6 @@ export interface FileRouteTypes {
     | '/saved'
     | '/settings'
     | '/sitemap.xml'
-    | '/prayers/groups/$groupId'
   id:
     | '__root__'
     | '/'
@@ -168,7 +157,6 @@ export interface FileRouteTypes {
     | '/saved'
     | '/settings'
     | '/sitemap.xml'
-    | '/prayers/groups/$groupId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,7 +166,7 @@ export interface RootRouteChildren {
   BibleRoute: typeof BibleRoute
   DonateRoute: typeof DonateRoute
   MediaRoute: typeof MediaRoute
-  PrayersRoute: typeof PrayersRouteWithChildren
+  PrayersRoute: typeof PrayersRoute
   ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
   SettingsRoute: typeof SettingsRoute
@@ -264,26 +252,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/prayers/groups/$groupId': {
-      id: '/prayers/groups/$groupId'
-      path: '/groups/$groupId'
-      fullPath: '/prayers/groups/$groupId'
-      preLoaderRoute: typeof PrayersGroupsGroupIdRouteImport
-      parentRoute: typeof PrayersRoute
-    }
   }
 }
-
-interface PrayersRouteChildren {
-  PrayersGroupsGroupIdRoute: typeof PrayersGroupsGroupIdRoute
-}
-
-const PrayersRouteChildren: PrayersRouteChildren = {
-  PrayersGroupsGroupIdRoute: PrayersGroupsGroupIdRoute,
-}
-
-const PrayersRouteWithChildren =
-  PrayersRoute._addFileChildren(PrayersRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -292,7 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   BibleRoute: BibleRoute,
   DonateRoute: DonateRoute,
   MediaRoute: MediaRoute,
-  PrayersRoute: PrayersRouteWithChildren,
+  PrayersRoute: PrayersRoute,
   ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
   SettingsRoute: SettingsRoute,
@@ -301,13 +271,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
