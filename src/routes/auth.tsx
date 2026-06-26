@@ -9,7 +9,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Selah" },
-      { name: "description", content: "Sign in to Selah to sync your saves, prayers and groups across devices." },
+      { name: "description", content: "Sign in to Selah to sync your saves and prayers across devices." },
     ],
   }),
   component: AuthPage,
