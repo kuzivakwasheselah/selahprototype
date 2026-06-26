@@ -35,7 +35,6 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { items: saved } = useSavedWallpapers();
   const { items: prayers } = usePrayers();
-  const { groups } = useGroups();
   const { total } = useDonations();
   const { profile, update } = useProfile();
   const { user, profile: authProfile, signOut, updateProfile } = useAuth();
