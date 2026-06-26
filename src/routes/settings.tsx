@@ -3,7 +3,6 @@ import {
   Settings as SettingsIcon,
   Download,
   Bookmark,
-  Users,
   Sparkles,
   Heart,
   RefreshCw,
