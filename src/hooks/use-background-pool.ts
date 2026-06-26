@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { fetchCloudinaryBatch } from "@/lib/backgrounds.functions";
 import { randomFallbackBackground, shuffle, WARMUP_SLIDES } from "@/data/backgrounds";
+import { logPerf } from "@/lib/perf-log";
 
 /**
  * Background source for the Reflect feed.
