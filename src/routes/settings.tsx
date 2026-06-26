@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Activity } from "lucide-react";
 import {
   Settings as SettingsIcon,
   Download,
