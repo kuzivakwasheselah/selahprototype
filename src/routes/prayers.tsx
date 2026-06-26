@@ -125,7 +125,7 @@ function PersonalTab() {
                   p.source === "generated" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground",
                 )}
               >
-                {p.source === "generated" ? "Answered" : "Written"}
+                {p.source === "generated" ? "Received" : "Written"}
               </span>
             </div>
             <p className="mt-1.5 whitespace-pre-line text-sm text-muted-foreground line-clamp-3">{p.body}</p>

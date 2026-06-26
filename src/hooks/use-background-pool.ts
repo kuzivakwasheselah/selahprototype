@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { fetchCloudinaryBatch } from "@/lib/backgrounds.functions";
 import { randomFallbackBackground, shuffle, WARMUP_SLIDES } from "@/data/backgrounds";
+import { logPerf } from "@/lib/perf-log";
 
 /**
  * Background source for the Reflect feed.
@@ -30,19 +31,40 @@ export function useBackgroundPool() {
   const loadMore = useCallback(async () => {
     if (fetchingRef.current || exhaustedRef.current) return;
     fetchingRef.current = true;
+    const startedAt = performance.now();
     try {
       const res = await fetchBatch({
         data: { cursor: cursorRef.current ?? undefined },
       });
+      const elapsedMs = Math.round(performance.now() - startedAt);
       if (res.configured && res.images.length > 0) {
         const fresh = res.images.filter((u) => !usedRef.current.has(u));
         poolRef.current.push(...shuffle(fresh));
+        logPerf("cloudinary", `Loaded ${fresh.length} background images`, {
+          fetched: res.images.length,
+          new: fresh.length,
+          timeMs: elapsedMs,
+          pooled: poolRef.current.length,
+          hasMore: Boolean(res.cursor),
+        });
+      } else if (!res.configured) {
+        logPerf("fallback", "Cloudinary not configured — using curated set", {
+          timeMs: elapsedMs,
+        });
+      } else if (res.error) {
+        logPerf("cloudinary", `Cloudinary error — ${res.error}`, { timeMs: elapsedMs });
+      } else {
+        logPerf("cloudinary", "Cloudinary returned no new images", { timeMs: elapsedMs });
       }
       cursorRef.current = res.cursor;
       // No cursor, or Cloudinary not configured/failed → stop paging.
       if (!res.cursor || !res.configured) exhaustedRef.current = true;
-    } catch {
+    } catch (err) {
       exhaustedRef.current = true;
+      logPerf("cloudinary", "Cloudinary request failed — falling back", {
+        timeMs: Math.round(performance.now() - startedAt),
+        error: err instanceof Error ? err.message : "unknown",
+      });
     } finally {
       fetchingRef.current = false;
     }

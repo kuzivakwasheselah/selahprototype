@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Activity } from "lucide-react";
 import {
   Settings as SettingsIcon,
   Download,
@@ -198,7 +199,14 @@ function SettingsPage() {
         <RefreshCw className="h-4 w-4 text-primary" /> Update app
       </button>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">Selah · v0.1 · Be still and know</p>
+      <Link
+        to="/performance"
+        className="mt-6 flex items-center justify-center gap-2 text-sm font-medium text-primary transition hover:underline"
+      >
+        <Activity className="h-4 w-4" /> View Performance
+      </Link>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">Selah · v0.1 · Be still and know</p>
     </div>
   );
 }

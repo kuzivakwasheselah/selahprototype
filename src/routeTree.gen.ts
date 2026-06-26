@@ -14,6 +14,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ReflectRouteImport } from './routes/reflect'
 import { Route as PrayersRouteImport } from './routes/prayers'
+import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as MediaRouteImport } from './routes/media'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as BibleRouteImport } from './routes/bible'
@@ -44,6 +45,11 @@ const ReflectRoute = ReflectRouteImport.update({
 const PrayersRoute = PrayersRouteImport.update({
   id: '/prayers',
   path: '/prayers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerformanceRoute = PerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MediaRoute = MediaRouteImport.update({
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
+  '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
+  '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/bible': typeof BibleRoute
   '/donate': typeof DonateRoute
   '/media': typeof MediaRoute
+  '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/bible'
     | '/donate'
     | '/media'
+    | '/performance'
     | '/prayers'
     | '/reflect'
     | '/saved'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/bible'
     | '/donate'
     | '/media'
+    | '/performance'
     | '/prayers'
     | '/reflect'
     | '/saved'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/bible'
     | '/donate'
     | '/media'
+    | '/performance'
     | '/prayers'
     | '/reflect'
     | '/saved'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   BibleRoute: typeof BibleRoute
   DonateRoute: typeof DonateRoute
   MediaRoute: typeof MediaRoute
+  PerformanceRoute: typeof PerformanceRoute
   PrayersRoute: typeof PrayersRoute
   ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/prayers'
       fullPath: '/prayers'
       preLoaderRoute: typeof PrayersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/performance': {
+      id: '/performance'
+      path: '/performance'
+      fullPath: '/performance'
+      preLoaderRoute: typeof PerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/media': {
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   BibleRoute: BibleRoute,
   DonateRoute: DonateRoute,
   MediaRoute: MediaRoute,
+  PerformanceRoute: PerformanceRoute,
   PrayersRoute: PrayersRoute,
   ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
