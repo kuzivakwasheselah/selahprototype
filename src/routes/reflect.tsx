@@ -67,6 +67,26 @@ function ReflectPage() {
   const search = Route.useSearch();
   const [muted, setMuted] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Ambient background audio: on unmute, pick one of the two tracks at random
+  // and loop it quietly at 30% volume. On mute, pause.
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.volume = 0.3;
+    if (muted) {
+      el.pause();
+    } else {
+      const url = AMBIENT_TRACKS[Math.floor(Math.random() * AMBIENT_TRACKS.length)];
+      el.src = url;
+      el.loop = true;
+      el.volume = 0.3;
+      el.play().catch(() => {});
+    }
+  }, [muted]);
+
+
 
   // Built on the client only — random verse/image pairing must not run during
   // SSR or it causes a hydration mismatch.
