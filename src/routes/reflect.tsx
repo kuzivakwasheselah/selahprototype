@@ -8,6 +8,10 @@ import { downloadWallpaper } from "@/lib/wallpaper";
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { useBackgroundPool } from "@/hooks/use-background-pool";
 import { cn } from "@/lib/utils";
+import ambient1 from "@/assets/ambient-1.mp3.asset.json";
+import ambient2 from "@/assets/ambient-2.mp3.asset.json";
+
+const AMBIENT_TRACKS = [ambient1.url, ambient2.url];
 
 type Search = {
   verseId?: string;
