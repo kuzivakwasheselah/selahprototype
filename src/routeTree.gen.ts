@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrayersRouteImport } from './routes/prayers'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as MediaRouteImport } from './routes/media'
@@ -40,6 +41,11 @@ const SavedRoute = SavedRouteImport.update({
 const ReflectRoute = ReflectRouteImport.update({
   id: '/reflect',
   path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrayersRoute = PrayersRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/media': typeof MediaRoute
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/media': typeof MediaRoute
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/media': typeof MediaRoute
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/performance'
     | '/prayers'
+    | '/privacy-policy'
     | '/reflect'
     | '/saved'
     | '/settings'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/performance'
     | '/prayers'
+    | '/privacy-policy'
     | '/reflect'
     | '/saved'
     | '/settings'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/performance'
     | '/prayers'
+    | '/privacy-policy'
     | '/reflect'
     | '/saved'
     | '/settings'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   MediaRoute: typeof MediaRoute
   PerformanceRoute: typeof PerformanceRoute
   PrayersRoute: typeof PrayersRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
   SettingsRoute: typeof SettingsRoute
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/reflect'
       fullPath: '/reflect'
       preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prayers': {
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   MediaRoute: MediaRoute,
   PerformanceRoute: PerformanceRoute,
   PrayersRoute: PrayersRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
   SettingsRoute: SettingsRoute,
