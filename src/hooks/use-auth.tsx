@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error?.message };
     },
     signUpEmail: async (email, password, name) => {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -79,7 +79,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data: { display_name: name },
         },
       });
-      return { error: error?.message };
+      if (error) {
+        // Detect an existing account so the UI can quietly fall back to sign in
+        // instead of showing a jarring error.
+        const msg = error.message.toLowerCase();
+        const alreadyExists =
+          msg.includes("already registered") ||
+          msg.includes("already exists") ||
+          msg.includes("already in use") ||
+          error.status === 422;
+        return { error: error.message, alreadyExists };
+      }
+      // Supabase returns a user with an empty identities array when the email
+      // already belongs to a confirmed account (anti-enumeration behaviour).
+      if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        return { alreadyExists: true };
+      }
+      return {};
     },
     signInGoogle: async () => {
       const result = await lovable.auth.signInWithOAuth("google", {
