@@ -164,7 +164,9 @@ function ReflectPage() {
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">
-      {/* Mute toggle (ambient audio — reserved) */}
+      <audio ref={audioRef} preload="none" loop className="hidden" />
+
+      {/* Mute toggle — ambient background audio */}
       <button
         type="button"
         onClick={() => setMuted((m) => !m)}
