@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { VERSES, TOTAL_VERSES_TARGET } from "@/data/verses";
+
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { usePrayers } from "@/lib/prayers-store";
 import { useDonations } from "@/lib/donations-store";
