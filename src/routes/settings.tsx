@@ -65,22 +65,6 @@ function SettingsPage() {
         Settings
       </h1>
 
-      {/* Verses progress */}
-      <section className="mt-6 rounded-3xl border border-border bg-card p-5">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="font-serif text-xl text-foreground">Verses in Reflect</h2>
-            <p className="text-sm text-muted-foreground">
-              {VERSES.length.toLocaleString()} of {TOTAL_VERSES_TARGET.toLocaleString()} verses curated
-            </p>
-          </div>
-          <span className="font-serif text-2xl text-primary">{pct.toFixed(1)}%</span>
-        </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-gradient-to-r from-primary to-[oklch(0.66_0.1_60)] transition-all" style={{ width: `${Math.max(pct, 1.5)}%` }} />
-        </div>
-      </section>
-
       {/* Offline */}
       <div className="mt-4 rounded-2xl border border-border bg-card p-4">
         <button
