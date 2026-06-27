@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrayersRouteImport } from './routes/prayers'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as MediaRouteImport } from './routes/media'
@@ -22,6 +24,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
+  id: '/terms-of-service',
+  path: '/terms-of-service',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -40,6 +47,11 @@ const SavedRoute = SavedRouteImport.update({
 const ReflectRoute = ReflectRouteImport.update({
   id: '/reflect',
   path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrayersRoute = PrayersRouteImport.update({
@@ -92,10 +104,12 @@ export interface FileRoutesByFullPath {
   '/media': typeof MediaRoute
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -106,10 +120,12 @@ export interface FileRoutesByTo {
   '/media': typeof MediaRoute
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -121,10 +137,12 @@ export interface FileRoutesById {
   '/media': typeof MediaRoute
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,10 +155,12 @@ export interface FileRouteTypes {
     | '/media'
     | '/performance'
     | '/prayers'
+    | '/privacy-policy'
     | '/reflect'
     | '/saved'
     | '/settings'
     | '/sitemap.xml'
+    | '/terms-of-service'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,10 +171,12 @@ export interface FileRouteTypes {
     | '/media'
     | '/performance'
     | '/prayers'
+    | '/privacy-policy'
     | '/reflect'
     | '/saved'
     | '/settings'
     | '/sitemap.xml'
+    | '/terms-of-service'
   id:
     | '__root__'
     | '/'
@@ -165,10 +187,12 @@ export interface FileRouteTypes {
     | '/media'
     | '/performance'
     | '/prayers'
+    | '/privacy-policy'
     | '/reflect'
     | '/saved'
     | '/settings'
     | '/sitemap.xml'
+    | '/terms-of-service'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -180,14 +204,23 @@ export interface RootRouteChildren {
   MediaRoute: typeof MediaRoute
   PerformanceRoute: typeof PerformanceRoute
   PrayersRoute: typeof PrayersRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsOfServiceRoute: typeof TermsOfServiceRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms-of-service': {
+      id: '/terms-of-service'
+      path: '/terms-of-service'
+      fullPath: '/terms-of-service'
+      preLoaderRoute: typeof TermsOfServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -214,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/reflect'
       fullPath: '/reflect'
       preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prayers': {
@@ -284,10 +324,12 @@ const rootRouteChildren: RootRouteChildren = {
   MediaRoute: MediaRoute,
   PerformanceRoute: PerformanceRoute,
   PrayersRoute: PrayersRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsOfServiceRoute: TermsOfServiceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

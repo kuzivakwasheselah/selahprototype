@@ -8,6 +8,10 @@ import { downloadWallpaper } from "@/lib/wallpaper";
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { useBackgroundPool } from "@/hooks/use-background-pool";
 import { cn } from "@/lib/utils";
+import ambient1 from "@/assets/ambient-1.mp3.asset.json";
+import ambient2 from "@/assets/ambient-2.mp3.asset.json";
+
+const AMBIENT_TRACKS = [ambient1.url, ambient2.url];
 
 type Search = {
   verseId?: string;
@@ -63,6 +67,26 @@ function ReflectPage() {
   const search = Route.useSearch();
   const [muted, setMuted] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Ambient background audio: on unmute, pick one of the two tracks at random
+  // and loop it quietly at 30% volume. On mute, pause.
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.volume = 0.3;
+    if (muted) {
+      el.pause();
+    } else {
+      const url = AMBIENT_TRACKS[Math.floor(Math.random() * AMBIENT_TRACKS.length)];
+      el.src = url;
+      el.loop = true;
+      el.volume = 0.3;
+      el.play().catch(() => {});
+    }
+  }, [muted]);
+
+
 
   // Built on the client only — random verse/image pairing must not run during
   // SSR or it causes a hydration mismatch.
@@ -140,7 +164,9 @@ function ReflectPage() {
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">
-      {/* Mute toggle (ambient audio — reserved) */}
+      <audio ref={audioRef} preload="none" loop className="hidden" />
+
+      {/* Mute toggle — ambient background audio */}
       <button
         type="button"
         onClick={() => setMuted((m) => !m)}

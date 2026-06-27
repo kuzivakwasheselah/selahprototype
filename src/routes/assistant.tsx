@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { MessageCircle, Send, BookOpen, Bookmark, Sparkles, Clapperboard, Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { MessageCircle, Send, BookOpen, Bookmark, Sparkles, Clapperboard, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { VERSES, randomVerse, type Verse } from "@/data/verses";
@@ -8,7 +9,7 @@ import { randomBackground } from "@/data/backgrounds";
 import { downloadWallpaper } from "@/lib/wallpaper";
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { usePrayers } from "@/lib/prayers-store";
-import { generatePrayer } from "@/lib/prayer-gen";
+import { chatAssistant, type AssistantResult } from "@/lib/assistant.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/assistant")({
@@ -26,80 +27,52 @@ type Card =
   | { kind: "prayer"; title: string; body: string }
   | { kind: "nav"; to: "/media" | "/bible" | "/donate" | "/reflect"; label: string };
 
-type Msg = { id: string; role: "user" | "assistant"; text?: string; cards?: Card[] };
+type Msg = { id: string; role: "user" | "assistant"; text?: string; cards?: Card[]; typing?: boolean };
 
 const SUGGESTIONS = ["Encourage me", "Write me a prayer", "Something to listen to", "Find me a verse"];
 
 function findVerse(query: string): Verse {
-  const q = query.toLowerCase();
+  const q = query.trim().toLowerCase();
+  if (!q) return randomVerse();
   const match = VERSES.find(
     (v) => v.text.toLowerCase().includes(q) || `${v.book} ${v.chapter}`.toLowerCase().includes(q),
   );
   return match ?? randomVerse();
 }
 
-function reply(input: string): Msg {
-  const t = input.toLowerCase();
-  const id = `a-${Date.now()}`;
-
-  if (/(pray|prayer)/.test(t)) {
-    const intention = input.replace(/.*pray(er)?( for| about)?/i, "").trim() || "peace";
-    const p = generatePrayer(intention);
-    return {
-      id,
-      role: "assistant",
-      text: "Here's a prayer I shaped for you. Want me to save it to your Prayers?",
-      cards: [{ kind: "prayer", title: p.title, body: p.body }],
-    };
+function resultToCards(result: AssistantResult): Card[] {
+  switch (result.intent) {
+    case "prayer":
+      return [
+        {
+          kind: "prayer",
+          title: result.prayerTitle?.trim() || "A prayer for you",
+          body: result.prayerBody?.trim() || "Heavenly Father, draw near to me today. Amen.",
+        },
+      ];
+    case "verse": {
+      const v1 = findVerse(result.topic ?? "");
+      const v2 = randomVerse(v1.id);
+      return [
+        { kind: "verse", verse: v1, bg: randomBackground() },
+        { kind: "verse", verse: v2, bg: randomBackground() },
+      ];
+    }
+    case "media":
+      return [{ kind: "nav", to: "/media", label: "Open Media" }];
+    case "bible":
+      return [{ kind: "nav", to: "/bible", label: "Open Bible" }];
+    case "donate":
+      return [{ kind: "nav", to: "/donate", label: "Open Donate" }];
+    case "reflect":
+      return [{ kind: "nav", to: "/reflect", label: "Open Reflect" }];
+    default:
+      return [];
   }
-
-  if (/(listen|music|audio|podcast|gospel|watch|video|media)/.test(t)) {
-    return {
-      id,
-      role: "assistant",
-      text: "There's some beautiful content waiting in Media — gospel, podcasts and calm visuals.",
-      cards: [{ kind: "nav", to: "/media", label: "Open Media" }],
-    };
-  }
-
-  if (/(donate|give|charity|cause)/.test(t)) {
-    return {
-      id,
-      role: "assistant",
-      text: "Generosity is a quiet kind of worship. You can support Selah or a cause here whenever you feel led.",
-      cards: [{ kind: "nav", to: "/donate", label: "Open Donate" }],
-    };
-  }
-
-  if (/(read|bible|chapter|book)/.test(t)) {
-    return {
-      id,
-      role: "assistant",
-      text: "The whole Bible is a tap away. Would you like to open it?",
-      cards: [{ kind: "nav", to: "/bible", label: "Open Bible" }],
-    };
-  }
-
-  // Default: encouragement with a verse or two.
-  const v1 = findVerse(t);
-  let v2 = randomVerse(v1.id);
-  const wantsTwo = /(verse|encourage|afraid|anxious|fear|hope|peace|strength|tired|lost|sad)/.test(t);
-  return {
-    id,
-    role: "assistant",
-    text: wantsTwo
-      ? "May these meet you where you are. Tap Read to sit with one, or Save it as a wallpaper."
-      : "Here's something to reflect on today.",
-    cards: wantsTwo
-      ? [
-          { kind: "verse", verse: v1, bg: randomBackground() },
-          { kind: "verse", verse: v2, bg: randomBackground() },
-        ]
-      : [{ kind: "verse", verse: v1, bg: randomBackground() }],
-  };
 }
 
 function AssistantPage() {
+  const callAssistant = useServerFn(chatAssistant);
   const [messages, setMessages] = useState<Msg[]>([
     {
       id: "welcome",
@@ -108,19 +81,51 @@ function AssistantPage() {
     },
   ]);
   const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages]);
 
-  const send = (raw?: string) => {
+  const send = async (raw?: string) => {
     const text = (raw ?? input).trim();
-    if (!text) return;
+    if (!text || busy) return;
+
     const userMsg: Msg = { id: `u-${Date.now()}`, role: "user", text };
-    setMessages((m) => [...m, userMsg]);
+    const history = [...messages, userMsg]
+      .filter((m) => m.text && !m.typing)
+      .map((m) => ({ role: m.role, text: m.text as string }));
+
+    setMessages((m) => [...m, userMsg, { id: "typing", role: "assistant", typing: true }]);
     setInput("");
-    setTimeout(() => setMessages((m) => [...m, reply(text)]), 400);
+    setBusy(true);
+
+    try {
+      const result = await callAssistant({ data: { messages: history } });
+      setMessages((m) =>
+        m
+          .filter((x) => x.id !== "typing")
+          .concat({
+            id: `a-${Date.now()}`,
+            role: "assistant",
+            text: result.reply,
+            cards: resultToCards(result),
+          }),
+      );
+    } catch {
+      setMessages((m) =>
+        m
+          .filter((x) => x.id !== "typing")
+          .concat({
+            id: `a-${Date.now()}`,
+            role: "assistant",
+            text: "I'm having trouble reaching the well of words right now. Please try again in a moment.",
+          }),
+      );
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -163,10 +168,11 @@ function AssistantPage() {
         <button
           type="button"
           onClick={() => send()}
+          disabled={busy}
           aria-label="Send"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition hover:brightness-105"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition hover:brightness-105 disabled:opacity-60"
         >
-          <Send className="h-5 w-5" />
+          {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
         </button>
       </div>
     </div>
@@ -180,6 +186,15 @@ function MessageBubble({ msg }: { msg: Msg }) {
         <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-sm text-primary-foreground">
           {msg.text}
         </div>
+      </div>
+    );
+  }
+  if (msg.typing) {
+    return (
+      <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-card px-4 py-3 text-muted-foreground w-fit">
+        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.2s]" />
+        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.1s]" />
+        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" />
       </div>
     );
   }
