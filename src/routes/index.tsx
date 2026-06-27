@@ -22,7 +22,6 @@ export const Route = createFileRoute("/")({
         content: "A calm, reflective home for Scripture, prayer and Christian media — the opposite of doomscrolling.",
       },
       { property: "og:url", content: "https://selah.website/" },
-      { rel: "canonical", href: "https://selah.website/" },
     ],
     links: [{ rel: "canonical", href: "https://selah.website/" }],
   }),
