@@ -11,7 +11,11 @@ type AuthContextValue = {
   profile: AuthProfile | null;
   loading: boolean;
   signInEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signUpEmail: (email: string, password: string, name: string) => Promise<{ error?: string }>;
+  signUpEmail: (
+    email: string,
+    password: string,
+    name: string,
+  ) => Promise<{ error?: string; alreadyExists?: boolean }>;
   signInGoogle: () => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   updateProfile: (patch: Partial<AuthProfile>) => Promise<void>;
