@@ -59,12 +59,12 @@ export const chatAssistant = createServerFn({ method: "POST" })
 
     const gateway = createLovableAiGatewayProvider(key);
 
-    const { output } = await generateText({
+    const { object } = await generateObject({
       model: gateway("google/gemini-3-flash-preview"),
       system: SYSTEM,
       messages: data.messages.map((m) => ({ role: m.role, content: m.text })),
-      output: Output.object({ schema: ResultSchema }),
+      schema: ResultSchema,
     });
 
-    return output;
+    return object;
   });
