@@ -30,14 +30,15 @@ const NAV = [
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+const HIDDEN_ON = ["/", "/auth", "/privacy-policy", "/terms-of-service"];
+
 export function AppMenu() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, profile, signOut } = useAuth();
   const prayerBadge = usePrayerBadge();
 
-
-
+  if (HIDDEN_ON.includes(pathname)) return null;
 
   return (
     <>
