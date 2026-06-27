@@ -47,7 +47,7 @@ function SettingsPage() {
     else update({ name });
   };
 
-  const pct = Math.min(100, (VERSES.length / TOTAL_VERSES_TARGET) * 100);
+  
   const generated = prayers.filter((p) => p.source === "generated").length;
 
   const offline = useOfflineBible();
