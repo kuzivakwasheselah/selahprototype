@@ -102,7 +102,7 @@ function SavedPage() {
                     “{w.text}”
                   </p>
                   <p className="mt-2 font-verse text-xs italic text-white/85">
-                    {w.book} {w.chapter}:{w.verse}
+                    {w.chapter === 0 ? w.book : `${w.book} ${w.chapter}:${w.verse}`}
                   </p>
                 </div>
               </button>
