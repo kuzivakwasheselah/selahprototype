@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clapperboard, Play, Headphones, X, Mic, Youtube } from "lucide-react";
 
 import { IMAGES, AUDIOS, type MediaItem } from "@/data/media";
-import { getMediaFeed, type FeedVideo } from "@/lib/media-feed.functions";
+import { getMediaFeed, refreshMediaFeed, type FeedVideo } from "@/lib/media-feed.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/media")({
