@@ -21,13 +21,21 @@ function SavedPage() {
   const { items, remove, clear } = useSavedWallpapers();
 
   const open = (verseId: string, image: string, book: string, chapter: number, verse: number, text: string) => {
+    if (chapter === 0) {
+      navigate({ to: "/reflect/prayers" });
+      return;
+    }
     navigate({ to: "/reflect", search: { verseId, book, chapter, verse, text, bg: image } });
   };
 
   const redownload = async (book: string, chapter: number, verse: number, text: string, image: string, verseId: string) => {
-    const v = getVerseById(verseId) ?? { id: verseId, book, chapter, verse, text, testament: "OT" as const };
     try {
-      await downloadWallpaper(v, image);
+      if (chapter === 0) {
+        await downloadPrayerWallpaper(book, text, image);
+      } else {
+        const v = getVerseById(verseId) ?? { id: verseId, book, chapter, verse, text, testament: "OT" as const };
+        await downloadWallpaper(v, image);
+      }
       toast.success("Wallpaper downloaded");
     } catch {
       toast.error("Couldn't download this image");
