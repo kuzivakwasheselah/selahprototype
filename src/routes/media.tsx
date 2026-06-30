@@ -32,16 +32,12 @@ function MediaPage() {
   const [activeVideo, setActiveVideo] = useState<FeedVideo | null>(null);
 
   const queryClient = useQueryClient();
-  const refresh = useServerFn(
-    // lazy import avoided — server fn imported below
-    () => Promise.resolve(),
-  );
+  const refreshFn = useServerFn(refreshMediaFeed);
 
   const { data: feed } = useQuery(mediaFeedQuery);
   const videos = feed?.videos ?? [];
 
   // Trigger the daily 24-hour refresh when the stored feed is stale or empty.
-  const refreshFn = useServerFnRefresh();
   const triggered = useRef(false);
   useEffect(() => {
     if (!feed || triggered.current) return;
@@ -53,8 +49,6 @@ function MediaPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feed]);
-
-  void refresh;
 
   return (
     <div className="mx-auto min-h-[100dvh] max-w-6xl px-4 pb-20 pt-20 sm:px-5">
