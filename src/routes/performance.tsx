@@ -141,6 +141,11 @@ function PerformancePage() {
         />
       </div>
 
+      {/* Today's video feed */}
+      <FeedSection feed={feed} />
+
+
+
       {/* Operations log */}
       <section className="mt-6">
         <div className="flex items-center justify-between">
