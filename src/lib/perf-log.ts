@@ -8,7 +8,7 @@ import { useSyncExternalStore } from "react";
  * touches the network — it only observes work happening elsewhere in the app.
  */
 
-export type PerfCategory = "cloudinary" | "fallback" | "reflect" | "system";
+export type PerfCategory = "cloudinary" | "fallback" | "reflect" | "media" | "system";
 
 export type PerfEvent = {
   id: string;
