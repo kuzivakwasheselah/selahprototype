@@ -1,4 +1,7 @@
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   ImageIcon,
@@ -9,12 +12,16 @@ import {
   AlertCircle,
   Cloud,
   Clock,
+  Youtube,
+  RefreshCw,
+  ListVideo,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { usePerfLog, clearPerf, type PerfCategory } from "@/lib/perf-log";
+import { usePerfLog, clearPerf, logPerf, type PerfCategory } from "@/lib/perf-log";
 import { VERSES, TOTAL_VERSES_TARGET } from "@/data/verses";
 import { FALLBACK_BACKGROUNDS } from "@/data/backgrounds";
+import { getMediaFeed, refreshMediaFeed } from "@/lib/media-feed.functions";
 
 export const Route = createFileRoute("/performance")({
   head: () => ({
@@ -34,6 +41,7 @@ const CATEGORY_STYLE: Record<PerfCategory, { label: string; cls: string }> = {
   cloudinary: { label: "Cloudinary", cls: "bg-accent text-accent-foreground" },
   fallback: { label: "Fallback", cls: "bg-secondary text-muted-foreground" },
   reflect: { label: "Reflect", cls: "bg-primary/10 text-primary" },
+  media: { label: "Media feed", cls: "bg-primary/15 text-primary" },
   system: { label: "System", cls: "bg-secondary text-muted-foreground" },
 };
 
