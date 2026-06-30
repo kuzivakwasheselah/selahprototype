@@ -47,10 +47,20 @@ function PrayersPage() {
 
   return (
     <div className="mx-auto min-h-[100dvh] max-w-2xl px-5 pb-20 pt-20">
-      <h1 className="flex items-center gap-2 text-3xl font-semibold text-foreground">
-        <HandHeart className="h-6 w-6 text-primary" />
-        Prayers
-      </h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="flex items-center gap-2 text-3xl font-semibold text-foreground">
+          <HandHeart className="h-6 w-6 text-primary" />
+          Prayers
+        </h1>
+        <Link
+          to="/reflect/prayers"
+          aria-label="Reflect on prayers"
+          title="Reflect on prayers"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border bg-card text-primary transition hover:border-primary/40 hover:bg-accent/50"
+        >
+          <HandHeart className="h-5 w-5" />
+        </Link>
+      </div>
 
       <div className="mt-6">
         <PersonalTab />
