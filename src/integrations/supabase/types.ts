@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      media_feed_batches: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          item_count: number
+          query: string | null
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          item_count?: number
+          query?: string | null
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          item_count?: number
+          query?: string | null
+          source?: string
+        }
+        Relationships: []
+      }
+      media_feed_items: {
+        Row: {
+          batch_id: string
+          channel_title: string | null
+          created_at: string
+          description: string | null
+          id: string
+          position: number
+          published_at: string | null
+          thumbnail_url: string | null
+          title: string
+          video_id: string
+        }
+        Insert: {
+          batch_id: string
+          channel_title?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          position?: number
+          published_at?: string | null
+          thumbnail_url?: string | null
+          title: string
+          video_id: string
+        }
+        Update: {
+          batch_id?: string
+          channel_title?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          position?: number
+          published_at?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_feed_items_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "media_feed_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_color: string
