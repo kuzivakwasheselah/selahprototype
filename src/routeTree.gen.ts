@@ -23,7 +23,7 @@ import { Route as BibleRouteImport } from './routes/bible'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ReflectPrayersRouteImport } from './routes/reflect.prayers'
+import { Route as ReflectPrayersRouteImport } from './routes/reflect_.prayers'
 
 const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
   id: '/terms-of-service',
@@ -96,9 +96,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReflectPrayersRoute = ReflectPrayersRouteImport.update({
-  id: '/prayers',
-  path: '/prayers',
-  getParentRoute: () => ReflectRoute,
+  id: '/reflect_/prayers',
+  path: '/reflect/prayers',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -111,7 +111,7 @@ export interface FileRoutesByFullPath {
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/reflect': typeof ReflectRouteWithChildren
+  '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -128,7 +128,7 @@ export interface FileRoutesByTo {
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/reflect': typeof ReflectRouteWithChildren
+  '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -146,12 +146,12 @@ export interface FileRoutesById {
   '/performance': typeof PerformanceRoute
   '/prayers': typeof PrayersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/reflect': typeof ReflectRouteWithChildren
+  '/reflect': typeof ReflectRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/reflect/prayers': typeof ReflectPrayersRoute
+  '/reflect_/prayers': typeof ReflectPrayersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -204,7 +204,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/reflect/prayers'
+    | '/reflect_/prayers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -217,11 +217,12 @@ export interface RootRouteChildren {
   PerformanceRoute: typeof PerformanceRoute
   PrayersRoute: typeof PrayersRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
-  ReflectRoute: typeof ReflectRouteWithChildren
+  ReflectRoute: typeof ReflectRoute
   SavedRoute: typeof SavedRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
+  ReflectPrayersRoute: typeof ReflectPrayersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -324,26 +325,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reflect/prayers': {
-      id: '/reflect/prayers'
-      path: '/prayers'
+    '/reflect_/prayers': {
+      id: '/reflect_/prayers'
+      path: '/reflect/prayers'
       fullPath: '/reflect/prayers'
       preLoaderRoute: typeof ReflectPrayersRouteImport
-      parentRoute: typeof ReflectRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface ReflectRouteChildren {
-  ReflectPrayersRoute: typeof ReflectPrayersRoute
-}
-
-const ReflectRouteChildren: ReflectRouteChildren = {
-  ReflectPrayersRoute: ReflectPrayersRoute,
-}
-
-const ReflectRouteWithChildren =
-  ReflectRoute._addFileChildren(ReflectRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -355,11 +345,12 @@ const rootRouteChildren: RootRouteChildren = {
   PerformanceRoute: PerformanceRoute,
   PrayersRoute: PrayersRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
-  ReflectRoute: ReflectRouteWithChildren,
+  ReflectRoute: ReflectRoute,
   SavedRoute: SavedRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
+  ReflectPrayersRoute: ReflectPrayersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

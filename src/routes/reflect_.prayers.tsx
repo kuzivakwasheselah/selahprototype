@@ -3,14 +3,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Bookmark, BookOpen, ChevronDown, ChevronUp, Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-import { SCROLL_PRAYERS, randomScrollPrayer, type ScrollPrayer } from "@/data/scroll-prayers";
+import { randomScrollPrayer, type ScrollPrayer } from "@/data/scroll-prayers";
 import { downloadPrayerWallpaper } from "@/lib/wallpaper";
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { usePrayers } from "@/lib/prayers-store";
 import { useBackgroundPool } from "@/hooks/use-background-pool";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/reflect/prayers")({
+export const Route = createFileRoute("/reflect_/prayers")({
   head: () => ({
     meta: [
       { title: "Prayers — Reflect — Selah" },
