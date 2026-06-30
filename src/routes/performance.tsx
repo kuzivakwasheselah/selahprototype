@@ -77,6 +77,8 @@ function PerformancePage() {
     { label: "Fast fallback set available", ok: FALLBACK_BACKGROUNDS.length >= 3 },
     { label: "Reflect verses loaded", ok: VERSES.length > 0 },
     { label: "Image fetch under 1.5s", ok: avgFetchMs !== null && avgFetchMs < 1500 },
+    { label: "Video feed connected", ok: Boolean(feed.data?.configured) },
+    { label: "Today's video feed loaded", ok: (feed.data?.videos.length ?? 0) > 0 },
     { label: "No fetch failures logged", ok: !events.some((e) => /fail|error/i.test(e.message)) },
   ];
   const readiness = Math.round((checks.filter((c) => c.ok).length / checks.length) * 100);
