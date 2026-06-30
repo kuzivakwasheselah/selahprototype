@@ -51,6 +51,8 @@ function fmtTime(at: number) {
 
 function PerformancePage() {
   const events = usePerfLog();
+  const feed = useMediaFeedAdmin();
+
 
   const cloudinaryEvents = events.filter((e) => e.category === "cloudinary");
   const imagesLoaded = cloudinaryEvents.reduce(
