@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { useSavedWallpapers } from "@/lib/saved-store";
 import { getVerseById } from "@/data/verses";
-import { downloadWallpaper } from "@/lib/wallpaper";
+import { downloadWallpaper, downloadPrayerWallpaper } from "@/lib/wallpaper";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
